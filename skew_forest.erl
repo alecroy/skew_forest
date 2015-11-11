@@ -1,5 +1,5 @@
 -module(skew_forest).
--export([create/0, create/1, cons/2, is_empty/1, head/1, tail/1]).
+-export([create/0, create/1, cons/2, is_empty/1, head/1, tail/1, foreach/2]).
 -include("skew_forest.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -26,6 +26,10 @@ tail(#forest{size=Size, trees=[#tree{size=1} | Trees]}) ->
     #forest{size=Size - 1, trees=Trees};
 tail(#forest{size=Size, trees=[#tree{left=L, right=R} | Trees]}) ->
     #forest{size=Size - 1, trees=[L, R | Trees]}.
+
+
+foreach(Function, #forest{trees=Trees}) ->
+    lists:foreach(fun (Tree) -> foreach_tree(Function, Tree) end, Trees).
 
 
 
@@ -57,6 +61,11 @@ tree(Size, [Value | Rest]) ->
 cons_trees(E, [T = #tree{size=S}, T2 = #tree{size=S2} | Trees]) when S == S2 ->
     [#tree{size=2 * S + 1, value=E, left=T, right=T2} | Trees];
 cons_trees(E, Trees) -> [#tree{size=1, value=E} | Trees].
+
+
+foreach_tree(Function, #tree{size=1, value=Value}) -> Function(Value);
+foreach_tree(Function, #tree{value=Value, left=L, right=R}) ->
+    Function(Value), foreach_tree(Function, L), foreach_tree(Function, R).
 
 
 
