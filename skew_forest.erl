@@ -1,5 +1,5 @@
 -module(skew_forest).
--export([create/0, create/1, cons/2]).
+-export([create/0, create/1, cons/2, is_empty/1, head/1, tail/1]).
 -include("skew_forest.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -16,6 +16,16 @@ cons(Element, #forest{size=Size, trees=Trees}) ->
 
 
 is_empty(#forest{size=Size}) -> Size == 0.
+
+
+head(#forest{trees=[#tree{value=Value} | _Trees]}) -> Value.
+
+
+tail(Empty = #forest{size=0}) -> Empty;
+tail(#forest{size=Size, trees=[#tree{size=1} | Trees]}) ->
+    #forest{size=Size - 1, trees=Trees};
+tail(#forest{size=Size, trees=[#tree{left=L, right=R} | Trees]}) ->
+    #forest{size=Size - 1, trees=[L, R | Trees]}.
 
 
 
@@ -100,4 +110,17 @@ cons_test() ->
 is_empty_test() ->
     true = is_empty(create()),
     false = is_empty(create([1])),
+    ok.
+
+
+tail_test() ->
+    #forest{size=0, trees=[]} = tail(create([1])),
+    #forest{size=1, trees=[#tree{size=1, value=2}]}
+        = tail(create([1, 2])),
+    ok.
+
+
+head_test() ->
+    1 = head(create([1])),
+    3 = head(tail(tail(create([1, 2, 3])))),
     ok.
