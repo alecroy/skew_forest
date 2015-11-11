@@ -1,6 +1,6 @@
 -module(skew_forest).
 -export([create/0, create/1, cons/2, is_empty/1, head/1, tail/1, foreach/2,
-         map/2, nth/2]).
+         map/2, nth/2, update/3]).
 -include("skew_forest.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -38,6 +38,10 @@ map(Function, Forest = #forest{trees=Trees}) ->
 
 
 nth(N, Forest) -> nth_trees(N, Forest#forest.trees).
+
+
+update(N, Value, Forest) ->
+    Forest#forest{trees=update_trees(N, Value, Forest#forest.trees)}.
 
 
 
@@ -92,6 +96,19 @@ nth_tree(1, #tree{value=Value}) -> Value;
 nth_tree(N, #tree{size=Size, left=L}) when N - 1 =< Size div 2 ->
     nth_tree(N - 1, L);
 nth_tree(N, #tree{size=Size, right=R}) -> nth_tree(N - 1 - Size div 2, R).
+
+
+update_trees(N, Value, Trees) -> update_trees(N, Value, Trees, []).
+update_trees(N, Value, [Tree = #tree{size=Size} | Trees], Out) when N > Size ->
+    update_trees(N - Size, Value, Trees, [Tree | Out]);
+update_trees(N, Value, [Tree | Trees], Out) ->
+    lists:reverse([update_tree(N, Value, Tree) | Out]) ++ Trees.
+
+update_tree(1, Value, T) -> T#tree{value=Value};
+update_tree(N, Value, T = #tree{size=Size, left=L}) when N - 1 =< Size div 2 ->
+    T#tree{left=update_tree(N - 1, Value, L)};
+update_tree(N, Value, T = #tree{size=Size, right=R}) ->
+    T#tree{right=update_tree(N - 1 - Size div 2, Value, R)}.
 
 
 
@@ -173,4 +190,12 @@ map_test() ->
 nth_test() ->
     1 = nth(1, create([1])),
     100 = nth(100, create(lists:seq(1, 100))),
+    ok.
+
+
+update_test() ->
+    Original = create([1, 2, 3]),
+    Modified = create([1, 7, 3]),
+    Modified = update(2, 7, Original),
+    Original = update(2, 2, Modified),
     ok.
