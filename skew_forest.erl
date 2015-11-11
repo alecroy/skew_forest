@@ -1,5 +1,6 @@
 -module(skew_forest).
--export([create/0, create/1, cons/2, is_empty/1, head/1, tail/1, foreach/2]).
+-export([create/0, create/1, cons/2, is_empty/1, head/1, tail/1, foreach/2,
+         map/2]).
 -include("skew_forest.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -30,6 +31,10 @@ tail(#forest{size=Size, trees=[#tree{left=L, right=R} | Trees]}) ->
 
 foreach(Function, #forest{trees=Trees}) ->
     lists:foreach(fun (Tree) -> foreach_tree(Function, Tree) end, Trees).
+
+
+map(Function, Forest = #forest{trees=Trees}) ->
+    Forest#forest{trees=[ map_tree(Function, Tree) || Tree <- Trees ]}.
 
 
 
@@ -66,6 +71,14 @@ cons_trees(E, Trees) -> [#tree{size=1, value=E} | Trees].
 foreach_tree(Function, #tree{size=1, value=Value}) -> Function(Value);
 foreach_tree(Function, #tree{value=Value, left=L, right=R}) ->
     Function(Value), foreach_tree(Function, L), foreach_tree(Function, R).
+
+
+map_tree(Function, Tree = #tree{size=1, value=Value}) ->
+    Tree#tree{value=Function(Value)};
+map_tree(Function, Tree = #tree{value=Value, left=L, right=R}) ->
+    Tree#tree{value=Function(Value),
+              left=map_tree(Function, L),
+              right=map_tree(Function, R)}.
 
 
 
@@ -132,4 +145,13 @@ tail_test() ->
 head_test() ->
     1 = head(create([1])),
     3 = head(tail(tail(create([1, 2, 3])))),
+    ok.
+
+
+map_test() ->
+    Identity = fun (X) -> X end,
+    Forest = create(lists:seq(1, 5)),
+    Forest = map(Identity, Forest),
+    Squares = create([1, 4, 9, 16, 25]),
+    Squares = map(fun (N) -> N * N end, Forest),
     ok.
