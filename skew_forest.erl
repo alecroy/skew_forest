@@ -95,11 +95,10 @@ nth_tree(N, #tree{size=Size, left=L}) when N - 1 =< Size div 2 ->
 nth_tree(N, #tree{size=Size, right=R}) -> nth_tree(N - 1 - Size div 2, R).
 
 
-update_trees(N, Value, Trees) -> update_trees(N, Value, Trees, []).
-update_trees(N, Value, [Tree = #tree{size=Size} | Trees], Out) when N > Size ->
-    update_trees(N - Size, Value, Trees, [Tree | Out]);
-update_trees(N, Value, [Tree | Trees], Out) ->
-    lists:reverse([update_tree(N, Value, Tree) | Out]) ++ Trees.
+update_trees(N, Value, [Tree = #tree{size=Size} | Trees]) when N =< Size ->
+    [update_tree(N, Value, Tree) | Trees];
+update_trees(N, Value, [Tree = #tree{size=Size} | Trees]) ->
+    [Tree | update_trees(N - Size, Value, Trees)].
 
 update_tree(1, Value, T) -> T#tree{value=Value};
 update_tree(N, Value, T = #tree{size=Size, left=L}) when N - 1 =< Size div 2 ->
