@@ -1,6 +1,6 @@
 -module(skew_forest).
 -export([create/0, create/1, cons/2, is_empty/1, head/1, tail/1, foreach/2,
-         map/2]).
+         map/2, nth/2]).
 -include("skew_forest.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -35,6 +35,9 @@ foreach(Function, #forest{trees=Trees}) ->
 
 map(Function, Forest = #forest{trees=Trees}) ->
     Forest#forest{trees=[ map_tree(Function, Tree) || Tree <- Trees ]}.
+
+
+nth(N, Forest) -> nth_trees(N, Forest#forest.trees).
 
 
 
@@ -79,6 +82,16 @@ map_tree(Function, Tree = #tree{value=Value, left=L, right=R}) ->
     Tree#tree{value=Function(Value),
               left=map_tree(Function, L),
               right=map_tree(Function, R)}.
+
+
+nth_trees(N, [Tree = #tree{size=Size} | _Trees]) when N =< Size ->
+    nth_tree(N, Tree);
+nth_trees(N, [#tree{size=Size} | Trees]) -> nth_trees(N - Size, Trees).
+
+nth_tree(1, #tree{value=Value}) -> Value;
+nth_tree(N, #tree{size=Size, left=L}) when N - 1 =< Size div 2 ->
+    nth_tree(N - 1, L);
+nth_tree(N, #tree{size=Size, right=R}) -> nth_tree(N - 1 - Size div 2, R).
 
 
 
@@ -154,4 +167,10 @@ map_test() ->
     Forest = map(Identity, Forest),
     Squares = create([1, 4, 9, 16, 25]),
     Squares = map(fun (N) -> N * N end, Forest),
+    ok.
+
+
+nth_test() ->
+    1 = nth(1, create([1])),
+    100 = nth(100, create(lists:seq(1, 100))),
     ok.
