@@ -51,8 +51,6 @@ highest_power_of_2(N) -> trunc(math:pow(2, trunc(math:log2(N)))).
 
 highest_skew_power_of_2(N) -> highest_power_of_2(N + 1) - 1.
 
-lower_skew_power(Skew) -> Skew div 2.
-
 
 trees(_Length, [], Trees) -> Trees;
 trees(Length, List, Trees) ->
@@ -64,7 +62,7 @@ trees(Length, List, Trees) ->
 
 tree(1, [Value]) -> #tree{size=1, value=Value};
 tree(Size, [Value | Rest]) ->
-    HalfSize = lower_skew_power(Size),
+    HalfSize = Size div 2,
     {Left, Right} = lists:split(HalfSize, Rest),
     {LeftTree, RightTree} = {tree(HalfSize, Left), tree(HalfSize, Right)},
     #tree{size=Size, value=Value, left=LeftTree, right=RightTree}.
@@ -121,13 +119,6 @@ highest_skew_power_of_2_test() ->
     7 = highest_skew_power_of_2(8),
     7 = highest_skew_power_of_2(7),
     1 = highest_skew_power_of_2(1),
-    ok.
-
-
-lower_skew_power_test() ->
-    7 = lower_skew_power(15),
-    3 = lower_skew_power(7),
-    1 = lower_skew_power(3),
     ok.
 
 
