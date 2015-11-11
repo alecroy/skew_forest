@@ -29,7 +29,7 @@ trees(Length, List, Trees) ->
     trees(Length - TreeSize, Rest, [Tree | Trees]).
 
 
-tree(1, [Value]) -> #tree{size=1, value=Value, left=null, right=null};
+tree(1, [Value]) -> #tree{size=1, value=Value};
 tree(Size, [Value | Rest]) ->
     HalfSize = lower_skew_power(Size),
     {Left, Right} = lists:split(HalfSize, Rest),
@@ -59,14 +59,14 @@ lower_skew_power_test() ->
 
 create_test() ->
     #forest{size=0, trees=[]} = create(),
-    #forest{size=1, trees=[#tree{size=1, value=1, left=null, right=null}]}
+    #forest{size=1, trees=[#tree{size=1, value=1}]}
         = create([1]),
-    #forest{size=2, trees=[#tree{size=1, value=1, left=null, right=null},
-                           #tree{size=1, value=2, left=null, right=null}]}
+    #forest{size=2, trees=[#tree{size=1, value=1},
+                           #tree{size=1, value=2}]}
         = create([1, 2]),
     #forest{size=3,
             trees=[#tree{size=3, value=1,
-                         left=#tree{size=1,value=2, left=null, right=null},
-                         right=#tree{size=1, value=3, left=null, right=null}}]}
+                         left=#tree{size=1,value=2},
+                         right=#tree{size=1, value=3}}]}
         = create([1, 2, 3]),
     ok.
