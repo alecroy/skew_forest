@@ -1,0 +1,2 @@
+-record(forest, {size, trees}).
+-record(tree, {size, value, left, right}).
