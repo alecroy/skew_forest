@@ -15,6 +15,9 @@ cons(Element, #forest{size=Size, trees=Trees}) ->
     #forest{size=Size + 1, trees=cons_trees(Element, Trees)}.
 
 
+is_empty(#forest{size=Size}) -> Size == 0.
+
+
 
 %% helpers
 
@@ -91,4 +94,10 @@ cons_test() ->
                                                left=#tree{size=1, value=2},
                                                right=#tree{size=1, value=3}}]},
     OneTwoThree = cons(1, cons(2, create([3]))),
+    ok.
+
+
+is_empty_test() ->
+    true = is_empty(create()),
+    false = is_empty(create([1])),
     ok.
