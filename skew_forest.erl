@@ -29,7 +29,8 @@ tail(#forest{size=Size, trees=[#tree{left=L, right=R} | Trees]}) ->
 
 
 foreach(Function, #forest{trees=Trees}) ->
-    lists:foreach(fun (Tree) -> foreach_tree(Function, Tree) end, Trees).
+    [foreach_tree(Function, Tree) || Tree <- Trees],
+    ok.
 
 
 map(Function, Forest = #forest{trees=Trees}) ->
